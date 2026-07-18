@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meera R — Full Stack Developer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0a0d12;
+    --bg-alt: #0f141b;
+    --surface: #131a22;
+    --surface-hi: #1a2330;
+    --line: #232e3a;
+    --text: #e7edf2;
+    --text-dim: #8b98a6;
+    --text-faint: #57646f;
+    --mint: #7fe3c9;
+    --amber: #f2b25c;
+    --coral: #e8836b;
+    --mono: 'JetBrains Mono', monospace;
+    --display: 'Space Grotesk', sans-serif;
+    --body: 'Inter', sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--body);
+    line-height:1.6;
+    overflow-x:hidden;
+    position:relative;
+  }
+  body::before{
+    content:'';
+    position:fixed; inset:0;
+    background-image:
+      linear-gradient(var(--line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line) 1px, transparent 1px);
+    background-size:64px 64px;
+    opacity:0.12;
+    pointer-events:none;
+    z-index:0;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 30%, transparent 75%);
+  }
+  a{color:inherit; text-decoration:none;}
+  ::selection{background:var(--mint); color:#0a0d12;}
+
+  /* scrollbar */
+  ::-webkit-scrollbar{width:10px;}
+  ::-webkit-scrollbar-track{background:var(--bg);}
+  ::-webkit-scrollbar-thumb{background:var(--line); border-radius:8px;}
+
+  .wrap{max-width:1080px; margin:0 auto; padding:0 32px; position:relative; z-index:1;}
+
+  /* ---------- NAV ---------- */
+  header{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    backdrop-filter:blur(14px);
+    background:rgba(10,13,18,0.72);
+    border-bottom:1px solid transparent;
+    transition:border-color .4s ease, background .4s ease;
+  }
+  header.scrolled{ border-bottom-color:var(--line); }
+  nav{
+    max-width:1080px; margin:0 auto; padding:18px 32px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .logo{
+    font-family:var(--mono); font-weight:600; font-size:15px; letter-spacing:0.5px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .logo .dot{width:8px; height:8px; border-radius:50%; background:var(--mint); box-shadow:0 0 10px var(--mint); animation:pulse 2.2s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:1; transform:scale(1);} 50%{opacity:.5; transform:scale(1.3);}}
+  .navlinks{display:flex; gap:36px; list-style:none;}
+  .navlinks a{
+    font-family:var(--mono); font-size:13px; color:var(--text-dim);
+    position:relative; padding:4px 0; transition:color .25s ease;
+  }
+  .navlinks a::before{content:'· ' ; color:var(--text-faint);}
+  .navlinks a:hover{color:var(--mint);}
+  .navlinks a::after{
+    content:''; position:absolute; left:0; bottom:-2px; width:0; height:1px; background:var(--mint);
+    transition:width .3s ease;
+  }
+  .navlinks a:hover::after{width:100%;}
+  .navtoggle{display:none;}
+
+  @media(max-width:760px){
+    .navlinks{position:fixed; top:60px; right:0; left:0; background:var(--bg-alt); flex-direction:column; padding:24px 32px; gap:18px; border-bottom:1px solid var(--line); transform:translateY(-140%); transition:transform .35s ease; opacity:0;}
+    .navlinks.open{transform:translateY(0); opacity:1;}
+    .navtoggle{display:flex; flex-direction:column; gap:5px; cursor:pointer; background:none; border:none; padding:6px;}
+    .navtoggle span{width:22px; height:2px; background:var(--text); transition:.3s;}
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    min-height:100svh;
+    display:flex; align-items:center;
+    padding-top:90px; padding-bottom:60px;
+    position:relative;
+  }
+  .hero-grid{
+    display:grid; grid-template-columns:1.1fr 0.9fr; gap:56px; align-items:center; width:100%;
+  }
+  @media(max-width:860px){ .hero-grid{grid-template-columns:1fr;} }
+
+  .eyebrow{
+    font-family:var(--mono); font-size:13px; color:var(--mint);
+    display:flex; align-items:center; gap:10px; margin-bottom:22px;
+    opacity:0; animation:riseIn .7s ease forwards; animation-delay:.1s;
+  }
+  .eyebrow .rule{width:28px; height:1px; background:var(--mint);}
+
+  h1{
+    font-family:var(--display); font-weight:700;
+    font-size:clamp(2.6rem, 6vw, 4.4rem);
+    line-height:1.05; letter-spacing:-0.02em;
+    margin-bottom:22px;
+    opacity:0; animation:riseIn .8s ease forwards; animation-delay:.22s;
+  }
+  h1 .accent{ color:var(--mint); position:relative; }
+
+  .hero p.lead{
+    font-size:17px; color:var(--text-dim); max-width:520px; margin-bottom:34px;
+    opacity:0; animation:riseIn .8s ease forwards; animation-delay:.36s;
+  }
+  .hero-cta{
+    display:flex; gap:16px; flex-wrap:wrap;
+    opacity:0; animation:riseIn .8s ease forwards; animation-delay:.5s;
+  }
+  .btn{
+    font-family:var(--mono); font-size:13.5px; font-weight:500;
+    padding:13px 24px; border-radius:6px; display:inline-flex; align-items:center; gap:8px;
+    transition:transform .25s ease, box-shadow .25s ease, background .25s ease;
+  }
+  .btn-primary{ background:var(--mint); color:#07110d; }
+  .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 10px 24px -8px rgba(127,227,201,0.45); }
+  .btn-ghost{ border:1px solid var(--line); color:var(--text); }
+  .btn-ghost:hover{ border-color:var(--mint); color:var(--mint); transform:translateY(-2px); }
+
+  @keyframes riseIn{ from{opacity:0; transform:translateY(16px);} to{opacity:1; transform:translateY(0);} }
+
+  /* terminal card */
+  .terminal{
+    background:var(--surface); border:1px solid var(--line); border-radius:10px;
+    overflow:hidden; box-shadow:0 30px 60px -20px rgba(0,0,0,.6);
+    opacity:0; animation:riseIn .9s ease forwards; animation-delay:.35s;
+  }
+  .terminal-bar{
+    display:flex; align-items:center; gap:8px; padding:12px 16px;
+    background:var(--surface-hi); border-bottom:1px solid var(--line);
+  }
+  .terminal-bar span{width:11px; height:11px; border-radius:50%;}
+  .terminal-bar span:nth-child(1){background:#e8836b;}
+  .terminal-bar span:nth-child(2){background:#f2b25c;}
+  .terminal-bar span:nth-child(3){background:#7fe3c9;}
+  .terminal-title{ margin-left:8px; font-family:var(--mono); font-size:12px; color:var(--text-faint); }
+  .terminal-body{ padding:22px 20px; font-family:var(--mono); font-size:13.5px; min-height:190px; }
+  .terminal-body .line{ margin-bottom:14px; color:var(--text-dim); }
+  .terminal-body .prompt{ color:var(--mint); }
+  .terminal-body .out{ color:var(--text); }
+  .cursor{ display:inline-block; width:8px; height:15px; background:var(--mint); vertical-align:middle; margin-left:2px; animation:blink 1s step-end infinite; }
+  @keyframes blink{ 50%{ opacity:0; } }
+
+  /* section shared */
+  section{ padding:120px 0; position:relative; }
+  .section-head{ margin-bottom:56px; }
+  .kicker{
+    font-family:var(--mono); font-size:13px; color:var(--amber); letter-spacing:0.5px; margin-bottom:12px; display:block;
+  }
+  h2{ font-family:var(--display); font-weight:700; font-size:clamp(1.9rem, 4vw, 2.6rem); letter-spacing:-0.01em; }
+
+  .reveal{ opacity:0; transform:translateY(28px); transition:opacity .7s ease, transform .7s ease; }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  /* ---------- ABOUT ---------- */
+  .about-grid{ display:grid; grid-template-columns:1.3fr 0.7fr; gap:64px; }
+  @media(max-width:860px){ .about-grid{grid-template-columns:1fr;} }
+  .about-grid p{ color:var(--text-dim); margin-bottom:18px; font-size:15.5px; }
+  .about-grid strong{ color:var(--text); font-weight:600; }
+  .contact-chips{ display:flex; flex-wrap:wrap; gap:12px; margin-top:26px; }
+  .chip{
+    font-family:var(--mono); font-size:12.5px; padding:9px 14px; border:1px solid var(--line);
+    border-radius:20px; color:var(--text-dim); transition:.25s ease; display:inline-flex; align-items:center; gap:6px;
+  }
+  .chip:hover{ border-color:var(--mint); color:var(--mint); transform:translateY(-2px); }
+
+  .stat-grid{ display:grid; grid-template-columns:1fr 1fr; gap:2px; background:var(--line); border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+  .stat{ background:var(--surface); padding:26px 20px; }
+  .stat .num{ font-family:var(--display); font-size:2.1rem; font-weight:700; color:var(--mint); }
+  .stat .lbl{ font-family:var(--mono); font-size:11.5px; color:var(--text-faint); margin-top:6px; text-transform:uppercase; letter-spacing:0.6px; }
+
+  /* ---------- SKILLS ---------- */
+  .skills-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+  @media(max-width:760px){ .skills-grid{grid-template-columns:1fr;} }
+  .skill-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:26px 24px;
+    transition:.3s ease;
+  }
+  .skill-card:hover{ border-color:var(--mint); transform:translateY(-4px); box-shadow:0 20px 40px -24px rgba(127,227,201,0.35); }
+  .skill-card h3{ font-family:var(--mono); font-size:12px; color:var(--amber); letter-spacing:0.6px; margin-bottom:16px; }
+  .tag-row{ display:flex; flex-wrap:wrap; gap:8px; }
+  .tag{ font-size:13px; background:var(--surface-hi); border:1px solid var(--line); padding:6px 12px; border-radius:6px; color:var(--text); }
+
+  /* ---------- PROJECTS ---------- */
+  .project-grid{ display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+  @media(max-width:760px){ .project-grid{grid-template-columns:1fr;} }
+  .project-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:30px;
+    display:flex; flex-direction:column; gap:16px; transition:.35s ease; position:relative; overflow:hidden;
+  }
+  .project-card:hover{ border-color:var(--mint); transform:translateY(-6px); box-shadow:0 30px 50px -26px rgba(0,0,0,.55); }
+  .project-icon{ font-size:32px; }
+  .project-card h3{ font-family:var(--display); font-size:1.3rem; }
+  .project-card .subtitle{ font-family:var(--mono); font-size:12px; color:var(--mint); }
+  .project-card p.desc{ color:var(--text-dim); font-size:14.5px; }
+  .project-card ul{ list-style:none; color:var(--text-dim); font-size:13.5px; display:flex; flex-direction:column; gap:6px; }
+  .project-card ul li::before{ content:'▹ '; color:var(--mint); }
+  .project-card .tag-row{ margin-top:auto; padding-top:6px; }
+
+  /* ---------- EXPERIENCE ---------- */
+  .timeline{ position:relative; padding-left:32px; border-left:1px solid var(--line); }
+  .timeline-item{ position:relative; padding-bottom:8px; }
+  .timeline-item::before{
+    content:''; position:absolute; left:-38px; top:6px; width:13px; height:13px; border-radius:50%;
+    background:var(--bg); border:2px solid var(--mint); box-shadow:0 0 0 4px var(--bg);
+  }
+  .timeline-head{ display:flex; flex-wrap:wrap; align-items:baseline; gap:12px; margin-bottom:6px; }
+  .timeline-head h3{ font-family:var(--mono); font-size:14px; letter-spacing:0.4px; color:var(--text); }
+  .timeline-head .role{ font-family:var(--display); font-size:1.4rem; font-weight:700; margin:6px 0 4px; }
+  .timeline-meta{ font-family:var(--mono); font-size:12.5px; color:var(--text-faint); margin-bottom:16px; }
+  .timeline-item ul{ list-style:none; color:var(--text-dim); font-size:14.5px; display:flex; flex-direction:column; gap:9px; }
+  .timeline-item ul li::before{ content:'→ '; color:var(--amber); }
+
+  /* ---------- EDUCATION ---------- */
+  .edu-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:34px;
+    display:flex; justify-content:space-between; align-items:center; gap:24px; flex-wrap:wrap;
+  }
+  .edu-card h3{ font-family:var(--display); font-size:1.4rem; margin-bottom:8px; }
+  .edu-card .school{ color:var(--text-dim); font-size:14.5px; margin-bottom:4px; }
+  .edu-card .years{ font-family:var(--mono); font-size:12.5px; color:var(--text-faint); }
+  .cgpa-badge{ text-align:center; background:var(--surface-hi); border:1px solid var(--mint); border-radius:10px; padding:18px 26px; }
+  .cgpa-badge .num{ font-family:var(--display); font-size:2.3rem; font-weight:700; color:var(--mint); }
+  .cgpa-badge .lbl{ font-family:var(--mono); font-size:11px; color:var(--text-faint); margin-top:4px; letter-spacing:0.5px; }
+
+  .cert-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; margin-top:24px; }
+  @media(max-width:760px){ .cert-grid{grid-template-columns:1fr;} }
+  .cert-card{ background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:22px; display:flex; gap:14px; align-items:flex-start; transition:.3s ease; }
+  .cert-card:hover{ border-color:var(--amber); transform:translateY(-3px); }
+  .cert-card .ic{ font-size:22px; }
+  .cert-card h4{ font-family:var(--body); font-size:14px; font-weight:600; margin-bottom:4px; }
+  .cert-card p{ font-family:var(--mono); font-size:11.5px; color:var(--text-faint); }
+
+  /* ---------- CONTACT ---------- */
+  .contact-box{
+    background:linear-gradient(160deg, var(--surface), var(--surface-hi));
+    border:1px solid var(--line); border-radius:16px; padding:64px 48px; text-align:center; position:relative; overflow:hidden;
+  }
+  .contact-box::after{
+    content:''; position:absolute; width:320px; height:320px; background:radial-gradient(circle, rgba(127,227,201,0.16), transparent 70%);
+    top:-120px; right:-80px; pointer-events:none;
+  }
+  .contact-box h2{ margin-bottom:14px; }
+  .contact-box p{ color:var(--text-dim); max-width:460px; margin:0 auto 30px; }
+  .contact-actions{ display:flex; justify-content:center; gap:16px; flex-wrap:wrap; }
+
+  footer{ padding:36px 0 50px; text-align:center; }
+  footer p{ font-family:var(--mono); font-size:12px; color:var(--text-faint); }
+
+  @media(prefers-reduced-motion: reduce){
+    *{ animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; scroll-behavior:auto !important; }
+  }
+
+  a:focus-visible, button:focus-visible{ outline:2px solid var(--mint); outline-offset:3px; border-radius:4px; }
+</style>
+</head>
+<body>
+
+<header id="header">
+  <nav>
+    <div class="logo"><span class="dot"></span>Meera.r</div>
+    <ul class="navlinks" id="navlinks">
+      <li><a href="#about">About</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <button class="navtoggle" id="navtoggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+  </nav>
+</header>
+
+<main class="wrap">
+
+  <!-- HERO -->
+  <section class="hero" id="top">
+    <div class="hero-grid">
+      <div>
+        <div class="eyebrow">
+    <span class="rule"></span>AVAILABLE FOR INTERNSHIPS
+</div>
+
+<h1>
+    Hi, I'm <span class="accent">Meera R</span>
+</h1>
+
+<h2 class="hero-role">
+    MERN Stack Developer
+</h2>
+
+<p class="lead">
+    B.Tech Computer Science student passionate about building modern,
+    responsive, and scalable web applications using the MERN Stack.
+</p>
+        <div class="hero-cta">
+          <a href="#projects" class="btn btn-primary">View Projects →</a>
+          <a href="mailto:meerarutham@gmail.com" class="btn btn-ghost">Get in Touch</a>
+        </div>
+      </div>
+
+      <div class="terminal">
+        <div class="terminal-bar">
+          <span></span><span></span><span></span>
+          <div class="terminal-title">meera@devbox: ~</div>
+        </div>
+        <div class="terminal-body" id="typedTerminal"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="section-head reveal">
+      <span class="kicker">// 01 — About</span>
+      <h2>Who I Am</h2>
+    </div>
+    <div class="about-grid">
+      <div class="reveal">
+        <p>I'm a B.Tech Computer Science and Engineering student at <strong>Sree Narayana Gurukulam College of Engineering, Kadayiruppu</strong> (2024–2028), with a CGPA of <strong>8.29</strong> and a deep interest in Full Stack Web Development.</p>
+        <p>I love building web applications that are functional, clean, and responsive. Currently focused on the MERN stack while consistently practicing Data Structures and Algorithms to strengthen my foundations.</p>
+        <p>I've had hands-on internship experience at <strong>Techmindz</strong>, Ndimensionz, Infopark, Kakkanad, where I got real exposure to professional development workflows, frontend engineering, and team collaboration.</p>
+        <div class="contact-chips">
+          <a class="chip" href="mailto:meerarutham@gmail.com">✉ meerarutham@gmail.com</a>
+          <a class="chip" href="https://www.linkedin.com/in/meera-r-b26a14272" target="_blank" rel="noopener">in LinkedIn</a>
+          <span class="chip">📍 Kerala, India</span>
+        </div>
+      </div>
+      <div class="stat-grid reveal">
+        <div class="stat"><div class="num" data-count="8.29" data-decimal="true">0</div><div class="lbl">CGPA · Sem 4</div></div>
+        <div class="stat"><div class="num" data-count="3+" data-suffix="+">0</div><div class="lbl">Projects Built</div></div>
+        <div class="stat"><div class="num" data-count="3+">0</div><div class="lbl">Certifications</div></div>
+        <div class="stat"><div class="num" data-count="5" data-suffix="+">0</div><div class="lbl">Tech Skills</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills">
+    <div class="section-head reveal">
+      <span class="kicker">// 02 — Skills</span>
+      <h2>What I Work With</h2>
+    </div>
+    <div class="skills-grid">
+      <div class="skill-card reveal">
+        <h3>FRONTEND &amp; LANGUAGES</h3>
+        <div class="tag-row">
+          <span class="tag">JavaScript</span><span class="tag">HTML5 &amp; CSS3</span><span class="tag">React.js</span><span class="tag">Python</span><span class="tag">Java</span><span class="tag">C</span>
+        </div>
+      </div>
+      <div class="skill-card reveal">
+        <h3>BACKEND &amp; DATABASE</h3>
+        <div class="tag-row">
+          <span class="tag">Node.js</span><span class="tag">Express.js</span><span class="tag">MongoDB</span><span class="tag">MySQL</span><span class="tag">PHP</span><span class="tag">JDBC</span>
+        </div>
+      </div>
+      <div class="skill-card reveal">
+        <h3>TOOLS &amp; SOFT SKILLS</h3>
+        <div class="tag-row">
+          <span class="tag">DSA</span><span class="tag">Java Swing</span><span class="tag">Responsive UI Design</span><span class="tag">Communication</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects">
+    <div class="section-head reveal">
+      <span class="kicker">// 03 — Projects</span>
+      <h2>What I've Built</h2>
+    </div>
+    <div class="project-grid">
+      <div class="project-card reveal">
+        <div class="project-icon">☕</div>
+        <div>
+          <h3>Summer Café</h3>
+          <div class="subtitle">Café Management System</div>
+        </div>
+        <p class="desc">A web-based café management system with menu management, order processing, and a responsive user interface for efficient customer interaction.</p>
+        <ul>
+          <li>Menu management and order processing</li>
+          <li>Responsive UI for customer interaction</li>
+          <li>Backend database operations using MySQL</li>
+        </ul>
+        <div class="tag-row">
+          <span class="tag">HTML</span><span class="tag">CSS</span><span class="tag">PHP</span><span class="tag">MySQL</span>
+        </div>
+      </div>
+      <div class="project-card reveal">
+        <div class="project-icon">🏥</div>
+        <div>
+          <h3>MediEase</h3>
+          <div class="subtitle">Healthcare Management System</div>
+        </div>
+        <p class="desc">A desktop healthcare management application with doctor and patient dashboards, prescription management, and follow-up tracking.</p>
+        <ul>
+          <li>User authentication with role-based dashboards</li>
+          <li>Prescription &amp; follow-up management</li>
+          <li>MySQL integration via JDBC</li>
+        </ul>
+        <div class="tag-row">
+          <span class="tag">Java Swing</span><span class="tag">JDBC</span><span class="tag">MySQL</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERIENCE -->
+  <section id="experience">
+    <div class="section-head reveal">
+      <span class="kicker">// 04 — Experience</span>
+      <h2>Where I've Worked</h2>
+    </div>
+    <div class="timeline">
+      <div class="timeline-item reveal">
+        <h3>NDIMENSIONZ, INFOPARK, KAKKANAD</h3>
+        <div class="role">MERN Stack Intern</div>
+        <div class="timeline-meta">Ndimensionz, Infopark, Kakkanad, Kerala · Internship</div>
+        <ul>
+          <li>Assisted in developing web applications using modern web technologies</li>
+          <li>Worked on frontend development and responsive user interfaces</li>
+          <li>Collaborated with mentors and team members on project tasks</li>
+          <li>Gained practical exposure to software development workflows and industry practices</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- EDUCATION -->
+  <section id="education">
+    <div class="section-head reveal">
+      <span class="kicker">// 05 — Education</span>
+      <h2>Academic Background</h2>
+    </div>
+    <div class="edu-card reveal">
+      <div>
+        <h3>B.Tech — Computer Science &amp; Engineering</h3>
+        <div class="school">Sree Narayana Gurukulam College of Engineering, Kadayiruppu</div>
+        <div class="years">2024 — 2028</div>
+      </div>
+      <div class="cgpa-badge">
+        <div class="num">8.29</div>
+        <div class="lbl">CGPA</div>
+      </div>
+    </div>
+
+    <div class="section-head reveal" style="margin-top:70px;">
+      <span class="kicker">// Certifications</span>
+    </div>
+    <div class="cert-grid">
+      <div class="cert-card reveal"><div class="ic">☁</div><div><h4>Foundations of Prompt Engineering</h4><p>Amazon Web Services</p></div></div>
+      <div class="cert-card reveal"><div class="ic">🔒</div><div><h4>Intro to Cybersecurity Awareness</h4><p>HP Life</p></div></div>
+      <div class="cert-card reveal"><div class="ic">📊</div><div><h4>Data Analytics Job Simulation</h4><p>Deloitte</p></div></div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="contact-box reveal">
+      <span class="kicker">// 06 — Contact</span>
+      <h2>Let's Connect</h2>
+      <p>Open to internship opportunities, collaborations, and conversations about tech.</p>
+      <div class="contact-actions">
+        <a class="btn btn-primary" href="mailto:meerarutham@gmail.com">✉ Send Email</a>
+        <a class="btn btn-ghost" href="https://www.linkedin.com/in/meera-r-b26a14272" target="_blank" rel="noopener">in LinkedIn</a>
+        <a class="btn btn-ghost" href="tel:+918301871895">📞 Call</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2024 Meera R. Built with purpose. · Kerala, India · meerarutham@gmail.com</p>
+  </footer>
+
+</main>
+
+<script>
+  // header scroll state
+  const header = document.getElementById('header');
+  window.addEventListener('scroll', () => {
+    header.classList.toggle('scrolled', window.scrollY > 12);
+  });
+
+  // mobile nav toggle
+  const navtoggle = document.getElementById('navtoggle');
+  const navlinks = document.getElementById('navlinks');
+  navtoggle.addEventListener('click', () => navlinks.classList.toggle('open'));
+  navlinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => navlinks.classList.remove('open')));
+
+  // scroll reveal
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if(e.isIntersecting){
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.15 });
+  revealEls.forEach(el => io.observe(el));
+
+  // count-up stats
+  const counters = document.querySelectorAll('.num[data-count]');
+  const counterIO = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        const el = entry.target;
+        const target = parseFloat(el.dataset.count);
+        const isDecimal = el.dataset.decimal === 'true';
+        const suffix = el.dataset.suffix || '';
+        let cur = 0;
+        const dur = 1200;
+        const start = performance.now();
+        function tick(now){
+          const p = Math.min((now - start) / dur, 1);
+          const eased = 1 - Math.pow(1 - p, 3);
+          cur = target * eased;
+          el.textContent = (isDecimal ? cur.toFixed(2) : Math.round(cur)) + suffix;
+          if(p < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+        counterIO.unobserve(el);
+      }
+    });
+  }, { threshold: 0.5 });
+  counters.forEach(el => counterIO.observe(el));
+
+  // typing terminal effect
+  const termLines = [
+    { prompt: '$ who am i', out: '→ Meera-r, full-stack dev' },
+    { prompt: '$ cat skills.txt', out: '→ MERN · DSA · MySQL · Python' },
+    { prompt: '$ cat experience.log', out: '→ Ndimensionz, Infopark, Kakkanad' },
+    { prompt: '$ ./run --status', out: '→ Available for opportunities' }
+  ];
+  const termEl = document.getElementById('typedTerminal');
+
+  function typeText(el, text, speed){
+    return new Promise(resolve => {
+      let i = 0;
+      const iv = setInterval(() => {
+        el.textContent += text.charAt(i);
+        i++;
+        if(i >= text.length){ clearInterval(iv); resolve(); }
+      }, speed);
+    });
+  }
+
+  async function runTerminal(){
+    for(const l of termLines){
+      const lineWrap = document.createElement('div');
+      lineWrap.className = 'line';
+      const promptSpan = document.createElement('span');
+      promptSpan.className = 'prompt';
+      lineWrap.appendChild(promptSpan);
+      termEl.appendChild(lineWrap);
+      await typeText(promptSpan, l.prompt, 32);
+      await new Promise(r => setTimeout(r, 250));
+
+      const outWrap = document.createElement('div');
+      outWrap.className = 'line out';
+      termEl.appendChild(outWrap);
+      await typeText(outWrap, l.out, 14);
+      await new Promise(r => setTimeout(r, 450));
+    }
+    const cursor = document.createElement('span');
+    cursor.className = 'cursor';
+    termEl.appendChild(cursor);
+  }
+
+  const heroIO = new IntersectionObserver((entries, obs) => {
+    entries.forEach(e => {
+      if(e.isIntersecting){
+        setTimeout(runTerminal, 400);
+        obs.disconnect();
+      }
+    });
+  }, { threshold: 0.1 });
+  heroIO.observe(document.getElementById('typedTerminal'));
+</script>
+
+</body>
+</html>
